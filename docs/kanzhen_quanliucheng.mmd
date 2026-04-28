@@ -1,67 +1,60 @@
 ---
 title: 看诊全流程
 ---
+%% 图示原文结构：顾客 · AlphaHerb · 店员/药剂师 · 中医师 · HerbMan %%
 flowchart TB
-  %% ========== 顾客 ==========
-  subgraph L1["顾客"]
+  subgraph cust["顾客"]
     direction TB
-    A[进店]
+    enter[进店]
   end
 
-  %% ========== AlphaHerb ==========
-  subgraph L2["AlphaHerb"]
+  subgraph ah["AlphaHerb"]
     direction TB
-    AH1[/步态扫描：生成行为画像/]
-    AH2[/人脸识别/]
-    D{是否新客户?}
-    AH3[/辅助问诊：诊疗会话、辅助诊断、智能荐方/]
+    gait[/步态扫描：生成行为画像/]
+    face[/人脸识别/]
+    dec{是否新客户?}
+    assist[/辅助问诊：诊疗会话、辅助诊断、智能荐方/]
   end
 
-  %% ========== 店员 / 药剂师 ==========
-  subgraph L3["店员 / 药剂师"]
+  subgraph clerk["店员/药剂师"]
     direction TB
-    C1[基础询问、建档、到诊]
-    C2[接待、到诊]
-    C3[收款]
-    C4[配药发药]
+    newcust[基础询问、建档、到诊]
+    recv[接待、到诊]
+    pay[收款]
+    disp[配药发药]
   end
 
-  %% ========== 中医师 ==========
-  subgraph L4["中医师"]
+  subgraph doc["中医师"]
     direction TB
-    T[接诊：问诊、中医四诊、诊断、开方]
+    seen[接诊：问诊、中医四诊、诊断、开方]
   end
 
-  %% ========== HerbMan ==========
-  subgraph L5["HerbMan"]
+  subgraph hm["HerbMan"]
     direction TB
-    H1[(档案存储)]
-    H2[(诊疗记录存储)]
-    H3[(更新药品库存)]
+    arch[(档案存储)]
+    record[(诊疗记录存储)]
+    stock[(更新药品库存)]
   end
 
-  %% 进店分支
-  A --> AH1
-  A --> AH2
+  enter --> gait
+  enter --> face
 
-  %% AlphaHerb 内部与出库
-  AH2 --> D
-  AH1 -->|数据融合| H1
+  face --> dec
+  gait -->|数据融合| arch
 
-  D -->|是| C1
-  D -->|否| C2
+  dec -->|是| newcust
+  dec -->|否| recv
 
-  %% 店员流程
-  C1 --> H1
-  C1 --> C2
-  C2 --> T
-  C2 --> AH3
-  C3 --> C4
-  C4 --> H3
+  newcust --> arch
+  newcust --> recv
 
-  %% 中医师与 HerbMan、收款
-  T --> H2
-  T --> C3
+  recv --> seen
+  recv --> assist
 
-  %% AI 辅助问诊汇入接诊（接待同时触发）
-  AH3 -->|AI分析、辅助问诊| T
+  seen --> record
+  seen --> pay
+
+  pay --> disp
+  disp --> stock
+
+  assist -->|AI分析、辅助问诊| seen
